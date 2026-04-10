@@ -1,0 +1,68 @@
+class AoStar:
+    def __init__(self, graph, heuristic, start):
+        self.graph = graph
+        self.h = heuristic
+        self.start = start
+        self.solution = {}
+
+    def ao_star(self, node):
+        print(f"Expanding Node: {node}")
+
+        # if leaf node
+        if node not in self.graph:
+            return self.h[node]
+
+        min_cost = float('inf')
+        best_option = None
+
+        # check all AND-OR options
+        for option in self.graph[node]:
+            cost = 0
+
+            for (child, weight) in option:
+                cost += weight + self.ao_star(child)
+
+            if cost < min_cost:
+                min_cost = cost
+                best_option = option
+
+        self.solution[node] = best_option
+        return min_cost
+
+    def print_solution(self, node):
+        if node not in self.solution:
+            return
+
+        print(f"{node} -> {self.solution[node]}")
+
+        for (child, _) in self.solution[node]:
+            self.print_solution(child)
+
+
+# Correct graph (AND-OR structure)
+graph = {
+    'A': [[('B', 1), ('C', 1)], [('D', 1)]],
+    'B': [[('E', 1)], [('F', 1)]],
+    'C': [[('G', 1)]],
+    'D': [[('H', 1)]]
+}
+
+heuristic = {
+    'A': 2,
+    'B': 3,
+    'C': 8,
+    'D': 1,
+    'E': 0,
+    'F': 9,
+    'G': 6,
+    'H': 4
+}
+
+start_node = 'A'
+
+ao = AoStar(graph, heuristic, start_node)
+min_cost = ao.ao_star(start_node)
+
+print("Minimum Cost:", min_cost)
+print("Solution Graph:")
+ao.print_solution(start_node)
